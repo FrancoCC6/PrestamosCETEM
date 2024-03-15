@@ -1,0 +1,3 @@
+mostrecent=$(ls --sort=time *.java | head -n 1)
+javac $mostrecent
+java ${mostrecent%.*}
