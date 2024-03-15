@@ -34,8 +34,7 @@ class FakeResultSet {
 */
 }
 
-public class Test3 {
-
+public class Test4 {
 	private static void buildWindow() {
 		final JFrame FRAME = new JFrame();
 
