@@ -2,7 +2,7 @@
 	Bibliografia: 
 		* https://stackoverflow.com/questions/6567870/what-does-swingutilities-invokelater-do
 		* https://www.quora.com/Does-JVM-create-an-object-of-the-main-class-the-class-with-main
-*/
+		* https://stackoverflow.com/questions/15513380/how-to-open-a-new-window-by-clicking-a-button*/
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,6 +50,27 @@ public class Test4 {
 			BOTON_3 = new JButton("Boton 3"),
 			BOTON_4 = new JButton("Boton 4");
 
+
+		BOTON_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				EventQueue.invokeLater(() -> {
+					JFrame new_frame = new JFrame("Test");
+					new_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					new_frame.setSize(500, 500);
+					new_frame.setResizable(false);
+					new_frame.setLocationByPlatform(true);
+					new_frame.setVisible(true);
+				});
+			}
+		});
+
+		/*
+		BOTON_1.setBackground(Color.CYAN);
+		BOTON_2.setBackground(Color.YELLOW);
+		BOTON_3.setBackground(Color.RED);
+		BOTON_4.setBackground(Color.GREEN);
+		*/
+
 		final JPanel PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
 		PANEL_BOTONES.add(BOTON_1);
@@ -60,8 +81,12 @@ public class Test4 {
 		return PANEL_BOTONES;
 	}
 
-	private static void buildLowerPanel() {
+	private static JPanel buildLowerPanel() {
+		final JPanel PANEL_INFERIOR = new JPanel();
 
+		PANEL_INFERIOR.setBackground(Color.WHITE);
+
+		return PANEL_INFERIOR;
 	}
 
 	private static void buildStockPanel() {
