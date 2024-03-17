@@ -40,19 +40,40 @@ class FakeResultSet {
 */
 }
 
-public class Test4 {
+public class Test5 {
+	private static class TaggedJButton extends JButton {
+		public final String TAG;
+
+		public TaggedJButton(String tag) {
+			setText(tag);
+			TAG = tag;
+		}
+	}
+
 	private static final JFrame FRAME = new JFrame();
-	private static final JPanel PANEL_INFERIOR = new JFrame(new BorderLayout());
-	private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
+	private static final JPanel PANEL_INFERIOR = new JPanel();
+	//private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
+	private static final CardLayout CARD_LAYOUT = new CardLayout();
 
+	private static final ActionListener BTN_ACTION = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			CARD_LAYOUT.show(PANEL_INFERIOR, ((TaggedJButton)e.getSource()).TAG);
+		}
+	};
 	private static JPanel buildButtonsPanel() {
-		final JButton
-			BOTON_1 = new JButton("Prestamos"),
-			BOTON_2 = new JButton("Inventario"),
-			BOTON_3 = new JButton("Boton 3"),
-			BOTON_4 = new JButton("Boton 4");
+		final String[] TAGS = {
+			"Prestamos",
+			"Inventario",
+			"Boton 3",
+			"Boton 4"
+		};
 
-
+		final TaggedJButton[] BOTONES = new TaggedJButton[TAGS.length];
+		for (int i = 0; i < TAGS.length; i++) {
+			BOTONES[i] = new TaggedJButton(TAGS[i]);
+			BOTONES[i].addActionListener(BTN_ACTION);
+		}
 
 		/*
 		BOTON_1.addActionListener(new ActionListener() {
@@ -76,10 +97,9 @@ public class Test4 {
 
 		final JPanel PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
-		PANEL_BOTONES.add(BOTON_1);
-		PANEL_BOTONES.add(BOTON_2);
-		PANEL_BOTONES.add(BOTON_3);
-		PANEL_BOTONES.add(BOTON_4);
+		for (TaggedJButton btn : BOTONES) {
+			PANEL_BOTONES.add(btn);
+		}
 
 		return PANEL_BOTONES;
 	}
@@ -107,10 +127,13 @@ public class Test4 {
 		final int ALTO = screensize.height / 4 * 3;
 		final int ANCHO = screensize.width / 4 * 3;
 		//final GridBagConstraints GBAGC = new GridBagConstraints();
-		final JPanel PANEL_INFERIOR = buildLowerPanel();
+		//final JPanel PANEL_INFERIOR = buildLowerPanel();
+		PANEL_INFERIOR.setLayout(CARD_LAYOUT);
+		PANEL_INFERIOR.add(buildLoansPanel(), "Prestamos");
+		PANEL_INFERIOR.add(buildStockPanel(), "Inventario");
 
 		//FRAME.setLayout(new GridBagLayout());
-		FRAME.setLayout(LAYOUT);
+		FRAME.setLayout(new BorderLayout());
 		FRAME.add(buildButtonsPanel(), BorderLayout.NORTH);
 		FRAME.add(PANEL_INFERIOR, BorderLayout.CENTER);
 		FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
