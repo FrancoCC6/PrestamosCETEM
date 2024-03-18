@@ -2,7 +2,10 @@
 	Bibliografia: 
 		* https://stackoverflow.com/questions/6567870/what-does-swingutilities-invokelater-do
 		* https://www.quora.com/Does-JVM-create-an-object-of-the-main-class-the-class-with-main
-		* https://stackoverflow.com/questions/15513380/how-to-open-a-new-window-by-clicking-a-button*/
+		* https://stackoverflow.com/questions/15513380/how-to-open-a-new-window-by-clicking-a-button
+		* https://old.chuidiang.org/java/tablas/tablamodelo/tablamodelo.php
+		* https://www.geeksforgeeks.org/java-swing-jtable/
+*/
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +43,7 @@ class FakeResultSet {
 */
 }
 
-public class Test5 {
+public class Test6 {
 	private static class TaggedJButton extends JButton {
 		public final String TAG;
 
@@ -106,10 +109,50 @@ public class Test5 {
 
 	private static JPanel buildStockPanel() {
 		final JPanel PANEL_INVENTARIO = new JPanel();
+		/*
+		final FakeResultSet INVENTARIO = new FakeResultSet(new Object[][]{
+			{"Calculadoras", 5},
+			{"Guardapolvos", 7}
+		});
+		final TableModel MODELO = new AbstractTableModel() {
+			public int getColumnCount() {
+				// ESTO NO ESTA BIEN PLANTEADO
+				return INVENTARIO[0].length;
+			}
+
+			public int getRowCount() {
+				// ESTO TAMPOCO ESTA BIEN PLANTEADO
+				return INVENTARIO.length;
+			}
+
+			public Object getValueAt(int fila, int columna) {
+				//System.out.println("Fila " + fila + ", columna " + columna);
+				if (columna >= INVENTARIO[0].length) {
+					INVENTARIO.next();
+				}
+
+				return INVENTARIO.getString(columna);
+
+				return ":3";
+			}
+		};
+		final JTable PLANILLA_INVENTARIO = new JTable(MODELO);
+		*/
+		// Buscar manera de NO TENER QUE HACER ESTO
+		final JTable TABLA = new JTable(new Object[][] {
+			{"Calculadoras", "5"},
+			{"Guardapolvos", "7"}
+		},
+		new Object[]{
+			"Elemento", "Cantidad"
+		});
+		final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
+
+		// BUSCAR MANERA DE PRESCINDIR DE UN SCROLLPANE
+		PANEL_INVENTARIO.add(SCROLLPANE);
 
 		PANEL_INVENTARIO.setOpaque(true);
 		PANEL_INVENTARIO.setBackground(Color.WHITE);
-		PANEL_INVENTARIO.add(new JLabel("Inventario"));
 
 		return PANEL_INVENTARIO;
 	}
