@@ -5,6 +5,8 @@
 		* https://stackoverflow.com/questions/15513380/how-to-open-a-new-window-by-clicking-a-button
 		* https://old.chuidiang.org/java/tablas/tablamodelo/tablamodelo.php
 		* https://www.geeksforgeeks.org/java-swing-jtable/
+		* https://www.tutorialspoint.com/sqlite/sqlite_java.html
+
 */
 
 import javax.swing.*;
@@ -44,6 +46,10 @@ class FakeResultSet {
 }
 
 public class Test6 {
+	FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
+		{"Calculadoras", 5},
+		{"Guardapolvos", 7}
+	});
 	private static class TaggedJButton extends JButton {
 		public final String TAG;
 
@@ -75,7 +81,9 @@ public class Test6 {
 		final TaggedJButton[] BOTONES = new TaggedJButton[TAGS.length];
 		for (int i = 0; i < TAGS.length; i++) {
 			BOTONES[i] = new TaggedJButton(TAGS[i]);
-			BOTONES[i].addActionListener(BTN_ACTION);
+			if (i < 2) { // Por ahora solo está implementado para los dos primeros botones
+				BOTONES[i].addActionListener(BTN_ACTION);
+			}
 		}
 
 		/*
@@ -106,6 +114,21 @@ public class Test6 {
 
 		return PANEL_BOTONES;
 	}
+
+	/*
+	 *									IMPORTANTE
+	 *
+	 *
+	 *	Para llenar las tablas de datos:
+	 *
+	 *		0. Las JTables se crean vacías
+	 *
+	 *	En un hilo aparte:
+	 *		1. Se hace el query desde el programa
+	 *		2. Por cada fila del ResultSet se crea una nueva que se agrega al JTable
+	 *
+	 *					***********   SUJETO A CAMBIOS   ************
+	 */
 
 	private static JPanel buildStockPanel() {
 		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
@@ -148,10 +171,8 @@ public class Test6 {
 		});
 		//final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
 
-		// BUSCAR MANERA DE PRESCINDIR DE UN SCROLLPANE
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
 		PANEL_INVENTARIO.add(TABLA, BorderLayout.CENTER);
-		//PANEL_INVENTARIO.add(SCROLLPANE);
 
 		PANEL_INVENTARIO.setOpaque(true);
 		PANEL_INVENTARIO.setBackground(Color.WHITE);
