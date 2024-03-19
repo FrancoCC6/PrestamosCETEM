@@ -108,7 +108,7 @@ public class Test6 {
 	}
 
 	private static JPanel buildStockPanel() {
-		final JPanel PANEL_INVENTARIO = new JPanel();
+		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
 		/*
 		final FakeResultSet INVENTARIO = new FakeResultSet(new Object[][]{
 			{"Calculadoras", 5},
@@ -146,10 +146,12 @@ public class Test6 {
 		new Object[]{
 			"Elemento", "Cantidad"
 		});
-		final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
+		//final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
 
 		// BUSCAR MANERA DE PRESCINDIR DE UN SCROLLPANE
-		PANEL_INVENTARIO.add(SCROLLPANE);
+		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
+		PANEL_INVENTARIO.add(TABLA, BorderLayout.CENTER);
+		//PANEL_INVENTARIO.add(SCROLLPANE);
 
 		PANEL_INVENTARIO.setOpaque(true);
 		PANEL_INVENTARIO.setBackground(Color.WHITE);
