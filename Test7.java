@@ -46,7 +46,7 @@ class FakeResultSet {
 */
 }
 
-public class Test6 {
+public class Test7 {
 	// NO SE AJUSTA AL MODELO DE DATOS PROPIAMENTE DICHO, REFLEJA LOS RESULTADOS DEL QUERY
 	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
 		{"Calculadora", 4},
@@ -106,7 +106,26 @@ public class Test6 {
 		}
 	};
 
+	private static JMenuBar buildMenuBar() {
+		final JMenuBar MENU_BAR = new JMenuBar();
+		final JMenu MENU_VER = new JMenu("Ver");
+		final JMenuItem
+			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
+			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo");
+
+		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);
+		MENU_VER.add(MENUITEM_INVENTARIO_FULL);
+
+		MENU_BAR.setMargin(new Insets(20, 20, 20, 20));
+		MENU_BAR.add(MENU_VER);
+
+		return MENU_BAR;
+	}
+
 	private static JPanel buildButtonsPanel() {
+		JLabel ICONO = new JLabel();
+		ICONO.setIcon(new ImageIcon("miniatura_cetem_savio.png"));
+
 		final String[] TAGS = {
 			"Nuevo Prestamo",
 			"Prestamos",
@@ -129,12 +148,29 @@ public class Test6 {
 		BOTON_4.setBackground(Color.GREEN);
 		*/
 
-		final JPanel PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		final JPanel PANEL_BOTONES = new JPanel(new BorderLayout()) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+				int w = getWidth(), h = getHeight();
+				Color color1 = new Color(49, 150, 222, 0);
+				Color color2 = new Color(86, 183, 252);
+				GradientPaint gp = new GradientPaint(0, 0, color1, w, h, color2);
+				g2d.setPaint(gp);
+				g2d.fillRect(0, 0, w, h);
+			}
+		},
+			  SUBPANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		SUBPANEL_BOTONES.setOpaque(false);
 
 		for (JButton btn : BOTONES) {
-			PANEL_BOTONES.add(btn);
+			SUBPANEL_BOTONES.add(btn);
 		}
 
+		PANEL_BOTONES.add(SUBPANEL_BOTONES, BorderLayout.WEST);
+		PANEL_BOTONES.add(ICONO, BorderLayout.EAST);
 		return PANEL_BOTONES;
 	}
 
@@ -212,21 +248,43 @@ public class Test6 {
 	}
 
 	private static void buildWindow() {
-		final Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		final int ALTO = screensize.height / 4 * 3;
-		final int ANCHO = screensize.width / 4 * 3;
-		//final GridBagConstraints GBAGC = new GridBagConstraints();
+		final Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
+		final int ALTO = SCREENSIZE.height / 4 * 3;
+		final int ANCHO = SCREENSIZE.width / 4 * 3;
+		final GridBagConstraints GBAGC = new GridBagConstraints();
 		//final JPanel PANEL_INFERIOR = buildLowerPanel();
 		PANEL_INFERIOR.add(buildLoansPanel(), "Prestamos");
 		PANEL_INFERIOR.add(buildStockPanel(), "Inventario");
 
-		//FRAME.setLayout(new GridBagLayout());
-		FRAME.setLayout(new BorderLayout());
-		FRAME.add(buildButtonsPanel(), BorderLayout.NORTH);
-		FRAME.add(PANEL_INFERIOR, BorderLayout.CENTER);
+		FRAME.setMinimumSize(new Dimension(ANCHO, ALTO));
+		FRAME.setLayout(new GridBagLayout());
+		//FRAME.setLayout(new BorderLayout());
+
+		//GBAGC.gridwidth = ANCHO;
+		GBAGC.fill = GridBagConstraints.BOTH;
+		GBAGC.weightx = 1.0;
+		//GBAGC.gridheight = ALTO;
+
+		GBAGC.weighty = .01;
+		GBAGC.gridx = 0;
+		GBAGC.gridy = 0;
+		FRAME.add(buildMenuBar(), GBAGC);
+		//FRAME.add(buildMenuBar(), BorderLayout.NORTH);
+		
+		GBAGC.weighty = .01;
+		GBAGC.gridx = 0;
+		GBAGC.gridy = 1;
+		FRAME.add(buildButtonsPanel(), GBAGC);
+		//FRAME.add(buildButtonsPanel(), BorderLayout.NORTH);
+		
+		//FRAME.add(PANEL_INFERIOR, BorderLayout.CENTER);
+		GBAGC.weighty = 1.0;
+		GBAGC.gridx = 0;
+		GBAGC.gridy = 2;
+		FRAME.add(PANEL_INFERIOR, GBAGC);
+
 		FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		FRAME.setTitle("Prestamos CETEM");
-		FRAME.setSize(ANCHO, ALTO);
 		FRAME.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		FRAME.setVisible(true);
 	}
