@@ -48,66 +48,80 @@ class FakeResultSet {
 
 public class Test6 {
 	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
-		{"Calculadoras", 4},
-		{"Enchufes Zapatilla", 1},
+		{"Calculadora", 4},
+		{"Enchufe Zapatilla", 1},
 		{"Proteccion Visual", 20},
 		{"Proteccion Auditiva", 20},
-		{"Cascos", 15},
-		{"Guardapolvos", 2}
+		{"Casco", 15},
+		{"Guardapolvo", 2}
 	});
 
-	private static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{"Elemento", "Cantidad"}, 0);
+	private static final FakeResultSet QUERY_PRESTAMOS = new FakeResultSet(new Object[][] {
+		{"Sister", "Friede", "Calculadora", 1, "Mecha"},
+		{"Demon", "in Pain", "Guardapolvo", 3, "Pablo"},
+		{"Demon", "from Below", "Casco", 2, "Any"},
+		{"Demon", "Prince", "Proteccion Auditiva", 4, "Fran"},
+		{"Knight", "Artorias", "Enchufe Zapatilla", 1, "Pame"},
+		{"Gwyn", "Heir of Fire", "Proteccion Visual", 2, "Mecha"},
+		{"Malenia", "Blade of Miquella", "Calculadora", 1, "Laure"}
+	});
 
-	private static class TaggedJButton extends JButton {
-		public final String TAG;
+	private static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{
+		"Elemento", 
+		"Cantidad"
+	}, 0);
 
-		public TaggedJButton(String tag) {
-			setText(tag);
-			TAG = tag;
-		}
-	}
+	private static final DefaultTableModel MODELO_PRESTAMOS = new DefaultTableModel(new Object[]{
+		"Nombre",
+		"Apellido",
+		"Elemento",
+		"Cantidad",
+		"Presta"
+	}, 0);
 
 	private static final JFrame FRAME = new JFrame();
 	private static final JPanel PANEL_INFERIOR = new JPanel();
 	//private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
 	private static final CardLayout CARD_LAYOUT = new CardLayout();
 
-	private static final ActionListener BTN_ACTION = new ActionListener() {
+	private static final ActionListener SHOW_THIS_TAB = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			CARD_LAYOUT.show(PANEL_INFERIOR, ((TaggedJButton)e.getSource()).TAG);
+			CARD_LAYOUT.show(PANEL_INFERIOR, ((JButton)e.getSource()).getText());
 		}
 	};
+
+	private static final ActionListener NEW_LOAN_WINDOW = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			EventQueue.invokeLater(() -> {
+				JFrame new_frame = new JFrame("Test");
+				new_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				new_frame.setSize(500, 500);
+				new_frame.setResizable(false);
+				new_frame.setLocationByPlatform(true);
+				new_frame.setVisible(true);
+			});
+		}
+	};
+
 	private static JPanel buildButtonsPanel() {
 		final String[] TAGS = {
+			"Nuevo Prestamo",
 			"Prestamos",
 			"Inventario",
-			"Boton 3",
 			"Boton 4"
 		};
 
-		final TaggedJButton[] BOTONES = new TaggedJButton[TAGS.length];
+		final JButton[] BOTONES = new JButton[TAGS.length];
 		for (int i = 0; i < TAGS.length; i++) {
-			BOTONES[i] = new TaggedJButton(TAGS[i]);
-			if (i < 2) { // Por ahora solo está implementado para los dos primeros botones
-				BOTONES[i].addActionListener(BTN_ACTION);
-			}
+			BOTONES[i] = new JButton(TAGS[i]);
 		}
+		BOTONES[0].addActionListener(NEW_LOAN_WINDOW);
+		BOTONES[1].addActionListener(SHOW_THIS_TAB);
+		BOTONES[2].addActionListener(SHOW_THIS_TAB);
 
 		/*
-		BOTON_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				EventQueue.invokeLater(() -> {
-					JFrame new_frame = new JFrame("Test");
-					new_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-					new_frame.setSize(500, 500);
-					new_frame.setResizable(false);
-					new_frame.setLocationByPlatform(true);
-					new_frame.setVisible(true);
-				});
-			}
-		});
-
 		BOTON_1.setBackground(Color.CYAN);
 		BOTON_2.setBackground(Color.YELLOW);
 		BOTON_3.setBackground(Color.RED);
@@ -116,7 +130,7 @@ public class Test6 {
 
 		final JPanel PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
-		for (TaggedJButton btn : BOTONES) {
+		for (JButton btn : BOTONES) {
 			PANEL_BOTONES.add(btn);
 		}
 
@@ -183,9 +197,12 @@ public class Test6 {
 	}
 
 	private static JPanel buildLoansPanel() {
-		final JPanel PANEL_PRESTAMOS = new JPanel();
+		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
+		final JTable TABLA = new JTable(MODELO_PRESTAMOS);
 
-		PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
+		// PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
+		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
+		PANEL_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
 
 		PANEL_PRESTAMOS.setOpaque(true);
 		PANEL_PRESTAMOS.setBackground(Color.WHITE);
@@ -215,6 +232,16 @@ public class Test6 {
 	}
 
 	private static void fetchData() {
+		while (QUERY_PRESTAMOS.next()) {
+			MODELO_PRESTAMOS.addRow(new Object[] {
+				QUERY_PRESTAMOS.getString(1), 
+				QUERY_PRESTAMOS.getString(2), 
+				QUERY_PRESTAMOS.getString(3), 
+				QUERY_PRESTAMOS.getString(4), 
+				QUERY_PRESTAMOS.getString(5) 
+			});
+		}
+
 		while (QUERY_INVENTARIO.next()) {
 			MODELO_INVENTARIO.addRow(new Object[] {QUERY_INVENTARIO.getString(1), QUERY_INVENTARIO.getInt(2)});
 		}
