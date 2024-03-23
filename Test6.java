@@ -10,6 +10,7 @@
 */
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -46,10 +47,17 @@ class FakeResultSet {
 }
 
 public class Test6 {
-	FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
-		{"Calculadoras", 5},
-		{"Guardapolvos", 7}
+	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
+		{"Calculadoras", 4},
+		{"Enchufes Zapatilla", 1},
+		{"Proteccion Visual", 20},
+		{"Proteccion Auditiva", 20},
+		{"Cascos", 15},
+		{"Guardapolvos", 2}
 	});
+
+	private static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{"Elemento", "Cantidad"}, 0);
+
 	private static class TaggedJButton extends JButton {
 		public final String TAG;
 
@@ -162,13 +170,7 @@ public class Test6 {
 		final JTable PLANILLA_INVENTARIO = new JTable(MODELO);
 		*/
 		// Buscar manera de NO TENER QUE HACER ESTO
-		final JTable TABLA = new JTable(new Object[][] {
-			{"Calculadoras", "5"},
-			{"Guardapolvos", "7"}
-		},
-		new Object[]{
-			"Elemento", "Cantidad"
-		});
+		final JTable TABLA = new JTable(MODELO_INVENTARIO);
 		//final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
 
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
@@ -212,7 +214,14 @@ public class Test6 {
 		FRAME.setVisible(true);
 	}
 
+	private static void fetchData() {
+		while (QUERY_INVENTARIO.next()) {
+			MODELO_INVENTARIO.addRow(new Object[] {QUERY_INVENTARIO.getString(1), QUERY_INVENTARIO.getInt(2)});
+		}
+	}
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> buildWindow());
+		SwingUtilities.invokeLater(() -> fetchData());
 	}
 }
