@@ -83,14 +83,17 @@ public class Test7 {
 	private static final JFrame FRAME = new JFrame();
 	private static final CardLayout CARD_LAYOUT = new CardLayout();
 	private static final JPanel PANEL_INFERIOR = new JPanel(CARD_LAYOUT);
+	private static final JButton BOTON_VOLVER = new JButton("Volver");
 	//private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
 
+	/*
 	private static final ActionListener SHOW_THIS_TAB = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			CARD_LAYOUT.show(PANEL_INFERIOR, ((JButton)e.getSource()).getText());
 		}
 	};
+	*/
 
 	private static final ActionListener NEW_LOAN_WINDOW = new ActionListener() {
 		@Override
@@ -113,6 +116,14 @@ public class Test7 {
 			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
 			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo");
 
+		MENUITEM_INVENTARIO_FULL.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CARD_LAYOUT.show(PANEL_INFERIOR, "Inventario");
+				BOTON_VOLVER.setVisible(true);
+			}
+		});
+
 		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);
 		MENU_VER.add(MENUITEM_INVENTARIO_FULL);
 
@@ -122,10 +133,11 @@ public class Test7 {
 		return MENU_BAR;
 	}
 
-	private static JPanel buildButtonsPanel() {
+	private static JPanel buildUpperPanel() {
 		JLabel ICONO = new JLabel();
 		ICONO.setIcon(new ImageIcon("miniatura_cetem_savio.png"));
 
+		/*
 		final String[] TAGS = {
 			"Nuevo Prestamo",
 			"Prestamos",
@@ -147,8 +159,9 @@ public class Test7 {
 		BOTON_3.setBackground(Color.RED);
 		BOTON_4.setBackground(Color.GREEN);
 		*/
+		final JButton BOTON_NUEVO_PRESTAMO = new JButton("Nuevo Prestamo");
 
-		final JPanel PANEL_BOTONES = new JPanel(new BorderLayout()) {
+		final JPanel PANEL_SUPERIOR = new JPanel(new BorderLayout()) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -162,16 +175,29 @@ public class Test7 {
 				g2d.fillRect(0, 0, w, h);
 			}
 		},
-			  SUBPANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
-		SUBPANEL_BOTONES.setOpaque(false);
+			  PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		PANEL_BOTONES.setOpaque(false);
 
+		/*
 		for (JButton btn : BOTONES) {
-			SUBPANEL_BOTONES.add(btn);
+			PANEL_BOTONES.add(btn);
 		}
+		*/
+		BOTON_VOLVER.setVisible(false);
+		BOTON_VOLVER.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CARD_LAYOUT.show(PANEL_INFERIOR, "PrestamosActivos");
+				BOTON_VOLVER.setVisible(false);
+			}
+		});
 
-		PANEL_BOTONES.add(SUBPANEL_BOTONES, BorderLayout.WEST);
-		PANEL_BOTONES.add(ICONO, BorderLayout.EAST);
-		return PANEL_BOTONES;
+		PANEL_BOTONES.add(BOTON_NUEVO_PRESTAMO);
+		PANEL_BOTONES.add(BOTON_VOLVER);
+
+		PANEL_SUPERIOR.add(PANEL_BOTONES, BorderLayout.WEST);
+		PANEL_SUPERIOR.add(ICONO, BorderLayout.EAST);
+		return PANEL_SUPERIOR;
 	}
 
 	/*
@@ -233,7 +259,7 @@ public class Test7 {
 		return PANEL_INVENTARIO;
 	}
 
-	private static JPanel buildLoansPanel() {
+	private static JPanel buildActiveLoansPanel() {
 		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
 		final JTable TABLA = new JTable(MODELO_PRESTAMOS);
 
@@ -241,8 +267,10 @@ public class Test7 {
 		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
 		PANEL_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
 
+		/*
 		PANEL_PRESTAMOS.setOpaque(true);
 		PANEL_PRESTAMOS.setBackground(Color.WHITE);
+		*/
 
 		return PANEL_PRESTAMOS;
 	}
@@ -253,7 +281,7 @@ public class Test7 {
 		final int ANCHO = SCREENSIZE.width / 4 * 3;
 		final GridBagConstraints GBAGC = new GridBagConstraints();
 		//final JPanel PANEL_INFERIOR = buildLowerPanel();
-		PANEL_INFERIOR.add(buildLoansPanel(), "Prestamos");
+		PANEL_INFERIOR.add(buildActiveLoansPanel(), "PrestamosActivos");
 		PANEL_INFERIOR.add(buildStockPanel(), "Inventario");
 
 		FRAME.setMinimumSize(new Dimension(ANCHO, ALTO));
@@ -274,8 +302,8 @@ public class Test7 {
 		GBAGC.weighty = .01;
 		GBAGC.gridx = 0;
 		GBAGC.gridy = 1;
-		FRAME.add(buildButtonsPanel(), GBAGC);
-		//FRAME.add(buildButtonsPanel(), BorderLayout.NORTH);
+		FRAME.add(buildUpperPanel(), GBAGC);
+		//FRAME.add(buildUpperPanel(), BorderLayout.NORTH);
 		
 		//FRAME.add(PANEL_INFERIOR, BorderLayout.CENTER);
 		GBAGC.weighty = 1.0;
