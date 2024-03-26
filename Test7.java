@@ -46,6 +46,27 @@ class FakeResultSet {
 */
 }
 
+class CustomTable extends JTable {
+	public CustomTable(AbstractTableModel modelo) {
+		super(modelo);
+
+		getTableHeader().setReorderingAllowed(false);
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// this parece no funcionar, asi que se usa una referencia
+				CustomTable THIS = (CustomTable)(e.getSource());
+				
+				int fila = THIS.rowAtPoint(e.getPoint());
+				int columna = THIS.columnAtPoint(e.getPoint());
+
+				System.out.println(THIS.getValueAt(fila, columna));
+			}
+		});
+	}
+}
+
 public class Test7 {
 	// NO SE AJUSTA AL MODELO DE DATOS PROPIAMENTE DICHO, REFLEJA LOS RESULTADOS DEL QUERY
 	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
@@ -114,10 +135,15 @@ public class Test7 {
 
 	private static JMenuBar buildMenuBar() {
 		final JMenuBar MENU_BAR = new JMenuBar();
-		final JMenu MENU_VER = new JMenu("Ver");
+		final JMenu 
+			MENU_VER = new JMenu("Ver"),
+			MENU_BUSCAR = new JMenu("Buscar (N/I)");
 		final JMenuItem
 			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
-			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo");
+			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo"),
+			MENUITEM_BUSCAR_ALUMNO = new JMenuItem("Alumno"),
+			MENUITEM_BUSCAR_PRESTAMO_FECHA = new JMenuItem("Prestamos por fecha"),
+			MENUITEM_BUSCAR_ELEMENTO = new JMenuItem("Elemento");
 
 		MENUITEM_TODOS_PRESTAMOS.addActionListener(new ActionListener() {
 			@Override
@@ -138,8 +164,13 @@ public class Test7 {
 		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);
 		MENU_VER.add(MENUITEM_INVENTARIO_FULL);
 
-		MENU_BAR.setMargin(new Insets(20, 20, 20, 20));
+		MENU_BUSCAR.add(MENUITEM_BUSCAR_PRESTAMO_FECHA);
+		MENU_BUSCAR.add(MENUITEM_BUSCAR_ALUMNO);
+		MENU_BUSCAR.add(MENUITEM_BUSCAR_ELEMENTO);
+
+		//MENU_BAR.setMargin(new Insets(20, 20, 20, 20));
 		MENU_BAR.add(MENU_VER);
+		MENU_BAR.add(MENU_BUSCAR);
 
 		return MENU_BAR;
 	}
@@ -266,7 +297,8 @@ public class Test7 {
 		final JTable PLANILLA_INVENTARIO = new JTable(MODELO);
 		*/
 		// Buscar manera de NO TENER QUE HACER ESTO
-		final JTable TABLA = new JTable(MODELO_INVENTARIO);
+		final CustomTable TABLA = new CustomTable(MODELO_INVENTARIO);
+
 		//final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
 
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
@@ -280,7 +312,7 @@ public class Test7 {
 
 	private static JPanel buildActiveLoansPanel() {
 		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
-		final JTable TABLA = new JTable(MODELO_PRESTAMOS);
+		final CustomTable TABLA = new CustomTable(MODELO_PRESTAMOS);
 
 		// PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
 		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
