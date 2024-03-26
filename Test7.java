@@ -82,7 +82,10 @@ public class Test7 {
 
 	private static final JFrame FRAME = new JFrame();
 	private static final CardLayout CARD_LAYOUT = new CardLayout();
-	private static final JPanel PANEL_INFERIOR = new JPanel(CARD_LAYOUT);
+	private static final JPanel 
+		PANEL_INFERIOR = new JPanel(new GridBagLayout()),
+		SUBPANEL_DATOS = new JPanel(),
+		SUBPANEL_INF_PRINCIPAL = new JPanel(CARD_LAYOUT);
 	private static final JButton BOTON_VOLVER = new JButton("Volver");
 	//private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
 
@@ -116,10 +119,18 @@ public class Test7 {
 			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
 			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo");
 
+		MENUITEM_TODOS_PRESTAMOS.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "TodosPrestamos");
+				BOTON_VOLVER.setVisible(true);
+			}
+		});
+
 		MENUITEM_INVENTARIO_FULL.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(PANEL_INFERIOR, "Inventario");
+				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "Inventario");
 				BOTON_VOLVER.setVisible(true);
 			}
 		});
@@ -187,8 +198,16 @@ public class Test7 {
 		BOTON_VOLVER.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(PANEL_INFERIOR, "PrestamosActivos");
+				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "PrestamosActivos");
 				BOTON_VOLVER.setVisible(false);
+			}
+		});
+
+		BOTON_NUEVO_PRESTAMO.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "NuevoPrestamo");
+				BOTON_VOLVER.setVisible(true);
 			}
 		});
 
@@ -275,21 +294,53 @@ public class Test7 {
 		return PANEL_PRESTAMOS;
 	}
 
+	private static JPanel buildNewLoanPanel() {
+		final JPanel PANEL_NUEVO_PRESTAMO = new JPanel();
+
+		PANEL_NUEVO_PRESTAMO.add(new JLabel("Nuevo prestamo, WIP"));
+
+		return PANEL_NUEVO_PRESTAMO;
+	}
+
+	private static JPanel buildAllLoansPanel() {
+		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel();
+
+		PANEL_TODOS_PRESTAMOS.add(new JLabel("Todos los prestamos, WIP"));
+
+		return PANEL_TODOS_PRESTAMOS;
+	}
+	
+
 	private static void buildWindow() {
 		final Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
 		final int ALTO = SCREENSIZE.height / 4 * 3;
 		final int ANCHO = SCREENSIZE.width / 4 * 3;
 		final GridBagConstraints GBAGC = new GridBagConstraints();
-		//final JPanel PANEL_INFERIOR = buildLowerPanel();
-		PANEL_INFERIOR.add(buildActiveLoansPanel(), "PrestamosActivos");
-		PANEL_INFERIOR.add(buildStockPanel(), "Inventario");
+
+		GBAGC.fill = GridBagConstraints.BOTH;
+		GBAGC.weighty = 1.0;
+
+		GBAGC.gridx = 0;
+		GBAGC.gridy = 0;
+		GBAGC.weightx = 1.0;
+		PANEL_INFERIOR.add(SUBPANEL_INF_PRINCIPAL, GBAGC);
+
+		GBAGC.gridx = 1;
+		GBAGC.weightx = .5;
+		PANEL_INFERIOR.add(SUBPANEL_DATOS, GBAGC);
+		SUBPANEL_INF_PRINCIPAL.add(buildActiveLoansPanel(), "PrestamosActivos");
+		SUBPANEL_INF_PRINCIPAL.add(buildStockPanel(), "Inventario");
+		SUBPANEL_INF_PRINCIPAL.add(buildNewLoanPanel(), "NuevoPrestamo");
+		SUBPANEL_INF_PRINCIPAL.add(buildAllLoansPanel(), "TodosPrestamos");
+
+		SUBPANEL_DATOS.add(new JLabel("Haga clic en cualquier dato para mostrar mas informacion"));
+		SUBPANEL_DATOS.setBackground(new Color(220, 230, 240));
 
 		FRAME.setMinimumSize(new Dimension(ANCHO, ALTO));
 		FRAME.setLayout(new GridBagLayout());
 		//FRAME.setLayout(new BorderLayout());
 
 		//GBAGC.gridwidth = ANCHO;
-		GBAGC.fill = GridBagConstraints.BOTH;
 		GBAGC.weightx = 1.0;
 		//GBAGC.gridheight = ALTO;
 
