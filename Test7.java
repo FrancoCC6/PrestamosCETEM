@@ -15,59 +15,60 @@ import java.awt.*;
 import java.awt.event.*;
 
 // Simula objetos de SQLite
-class FakeResultSet {
-	private final Object[][] DATASET;
-	private int current_register = -1;
 
-	public FakeResultSet(Object[][] dataset) {
-		DATASET = dataset;
-	}
-
-	public boolean next() {
-		return (++current_register < DATASET.length);
-	}
-
-	public Integer getInt(int field_index) {
-		return (int)(DATASET[current_register][field_index-1]);
-	}
-
-	public String getString(int field_index) {
-		return DATASET[current_register][field_index-1].toString();
-	}
-/*
-	public Date getDate(int field_index) {
-		// CAMBIAR A UNO APROPIADO
-		return (Integer)(DATASET[current_register][field_index]);
-	}
-
-	public Integer getInt(int field_index) {
-		return (Integer)(DATASET[current_register][field_index]);
-	}
-*/
-}
-
-class CustomTable extends JTable {
-	public CustomTable(AbstractTableModel modelo) {
-		super(modelo);
-
-		getTableHeader().setReorderingAllowed(false);
-
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// this parece no funcionar, asi que se usa una referencia
-				CustomTable THIS = (CustomTable)(e.getSource());
-				
-				int fila = THIS.rowAtPoint(e.getPoint());
-				int columna = THIS.columnAtPoint(e.getPoint());
-
-				System.out.println(THIS.getValueAt(fila, columna));
-			}
-		});
-	}
-}
 
 public class Test7 {
+	private static class CustomTable extends JTable {
+		public CustomTable(AbstractTableModel modelo) {
+			super(modelo);
+
+			getTableHeader().setReorderingAllowed(false);
+
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// this parece no funcionar, asi que se usa una referencia
+					CustomTable THIS = (CustomTable)(e.getSource());
+					
+					int fila = THIS.rowAtPoint(e.getPoint());
+					int columna = THIS.columnAtPoint(e.getPoint());
+
+					System.out.println(THIS.getValueAt(fila, columna));
+				}
+			});
+		}
+	}
+
+	private static class FakeResultSet {
+		private final Object[][] DATASET;
+		private int current_register = -1;
+
+		public FakeResultSet(Object[][] dataset) {
+			DATASET = dataset;
+		}
+
+		public boolean next() {
+			return (++current_register < DATASET.length);
+		}
+
+		public Integer getInt(int field_index) {
+			return (int)(DATASET[current_register][field_index-1]);
+		}
+
+		public String getString(int field_index) {
+			return DATASET[current_register][field_index-1].toString();
+		}
+	/*
+		public Date getDate(int field_index) {
+			// CAMBIAR A UNO APROPIADO
+			return (Integer)(DATASET[current_register][field_index]);
+		}
+
+		public Integer getInt(int field_index) {
+			return (Integer)(DATASET[current_register][field_index]);
+		}
+	*/
+	}
 	// NO SE AJUSTA AL MODELO DE DATOS PROPIAMENTE DICHO, REFLEJA LOS RESULTADOS DEL QUERY
 	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
 		{"Calculadora", 4},
@@ -108,7 +109,6 @@ public class Test7 {
 		SUBPANEL_DATOS = new JPanel(),
 		SUBPANEL_INF_PRINCIPAL = new JPanel(CARD_LAYOUT);
 	private static final JButton BOTON_VOLVER = new JButton("Volver");
-	//private static final Container PANELINF_CONTENTPANE = PANEL_INFERIOR.getContentPane();
 
 	/*
 	private static final ActionListener SHOW_THIS_TAB = new ActionListener() {
@@ -218,13 +218,9 @@ public class Test7 {
 			}
 		},
 			  PANEL_BOTONES = new JPanel(new FlowLayout(FlowLayout.LEADING));
+
 		PANEL_BOTONES.setOpaque(false);
 
-		/*
-		for (JButton btn : BOTONES) {
-			PANEL_BOTONES.add(btn);
-		}
-		*/
 		BOTON_VOLVER.setVisible(false);
 		BOTON_VOLVER.addActionListener(new ActionListener() {
 			@Override
@@ -267,39 +263,9 @@ public class Test7 {
 
 	private static JPanel buildStockPanel() {
 		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
-		/*
-		final FakeResultSet INVENTARIO = new FakeResultSet(new Object[][]{
-			{"Calculadoras", 5},
-			{"Guardapolvos", 7}
-		});
-		final TableModel MODELO = new AbstractTableModel() {
-			public int getColumnCount() {
-				// ESTO NO ESTA BIEN PLANTEADO
-				return INVENTARIO[0].length;
-			}
-
-			public int getRowCount() {
-				// ESTO TAMPOCO ESTA BIEN PLANTEADO
-				return INVENTARIO.length;
-			}
-
-			public Object getValueAt(int fila, int columna) {
-				//System.out.println("Fila " + fila + ", columna " + columna);
-				if (columna >= INVENTARIO[0].length) {
-					INVENTARIO.next();
-				}
-
-				return INVENTARIO.getString(columna);
-
-				return ":3";
-			}
-		};
-		final JTable PLANILLA_INVENTARIO = new JTable(MODELO);
-		*/
+		
 		// Buscar manera de NO TENER QUE HACER ESTO
 		final CustomTable TABLA = new CustomTable(MODELO_INVENTARIO);
-
-		//final JScrollPane SCROLLPANE = new JScrollPane(TABLA);
 
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
 		PANEL_INVENTARIO.add(TABLA, BorderLayout.CENTER);
