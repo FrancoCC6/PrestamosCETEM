@@ -16,8 +16,7 @@ import java.awt.event.*;
 
 // Simula objetos de SQLite
 
-
-public class Test7 {
+public class GUI {
 	private static class CustomTable extends JTable {
 		public CustomTable(AbstractTableModel modelo) {
 			super(modelo);
@@ -38,56 +37,6 @@ public class Test7 {
 			});
 		}
 	}
-
-	private static class FakeResultSet {
-		private final Object[][] DATASET;
-		private int current_register = -1;
-
-		public FakeResultSet(Object[][] dataset) {
-			DATASET = dataset;
-		}
-
-		public boolean next() {
-			return (++current_register < DATASET.length);
-		}
-
-		public Integer getInt(int field_index) {
-			return (int)(DATASET[current_register][field_index-1]);
-		}
-
-		public String getString(int field_index) {
-			return DATASET[current_register][field_index-1].toString();
-		}
-	/*
-		public Date getDate(int field_index) {
-			// CAMBIAR A UNO APROPIADO
-			return (Integer)(DATASET[current_register][field_index]);
-		}
-
-		public Integer getInt(int field_index) {
-			return (Integer)(DATASET[current_register][field_index]);
-		}
-	*/
-	}
-	// NO SE AJUSTA AL MODELO DE DATOS PROPIAMENTE DICHO, REFLEJA LOS RESULTADOS DEL QUERY
-	private static final FakeResultSet QUERY_INVENTARIO = new FakeResultSet(new Object[][] {
-		{"Calculadora", 4},
-		{"Enchufe Zapatilla", 1},
-		{"Proteccion Visual", 20},
-		{"Proteccion Auditiva", 20},
-		{"Casco", 15},
-		{"Guardapolvo", 2}
-	});
-
-	private static final FakeResultSet QUERY_PRESTAMOS = new FakeResultSet(new Object[][] {
-		{"Sister", "Friede", "Calculadora", 1, "Mecha"},
-		{"Demon", "in Pain", "Guardapolvo", 3, "Pablo"},
-		{"Demon", "from Below", "Casco", 2, "Any"},
-		{"Demon", "Prince", "Proteccion Auditiva", 4, "Fran"},
-		{"Knight", "Artorias", "Enchufe Zapatilla", 1, "Pame"},
-		{"Gwyn", "Lord of Cinder", "Proteccion Visual", 2, "Mecha"},
-		{"Malenia", "Blade of Miquella", "Calculadora", 1, "Laure"}
-	});
 
 	private static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{
 		"Elemento", 
@@ -364,26 +313,5 @@ public class Test7 {
 		FRAME.setTitle("Prestamos CETEM");
 		FRAME.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		FRAME.setVisible(true);
-	}
-
-	private static void fetchData() {
-		while (QUERY_PRESTAMOS.next()) {
-			MODELO_PRESTAMOS.addRow(new Object[] {
-				QUERY_PRESTAMOS.getString(1), 
-				QUERY_PRESTAMOS.getString(2), 
-				QUERY_PRESTAMOS.getString(3), 
-				QUERY_PRESTAMOS.getString(4), 
-				QUERY_PRESTAMOS.getString(5) 
-			});
-		}
-
-		while (QUERY_INVENTARIO.next()) {
-			MODELO_INVENTARIO.addRow(new Object[] {QUERY_INVENTARIO.getString(1), QUERY_INVENTARIO.getInt(2)});
-		}
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> buildWindow());
-		SwingUtilities.invokeLater(() -> fetchData());
 	}
 }

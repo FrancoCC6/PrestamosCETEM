@@ -1,3 +1,4 @@
-git add .
-git commit -m "Auto commit"
-git push origin main
+echo SCRIPT INHABILITADO TEMPORALMENTE, hacer los commits a mano
+# git add .
+# git commit -m "Auto commit"
+# git push origin main
