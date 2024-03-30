@@ -38,18 +38,6 @@ public class GUI {
 		}
 	}
 
-	private static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{
-		"Elemento", 
-		"Cantidad"
-	}, 0);
-
-	private static final DefaultTableModel MODELO_PRESTAMOS = new DefaultTableModel(new Object[]{
-		"Nombre",
-		"Apellido",
-		"Elemento",
-		"Cantidad",
-		"Presta"
-	}, 0);
 
 	private static final JFrame FRAME = new JFrame();
 	private static final CardLayout CARD_LAYOUT = new CardLayout();
@@ -126,7 +114,7 @@ public class GUI {
 
 	private static JPanel buildUpperPanel() {
 		JLabel ICONO = new JLabel();
-		ICONO.setIcon(new ImageIcon("miniatura_cetem_savio.png"));
+		ICONO.setIcon(new ImageIcon("res/miniatura_cetem_savio.png"));
 
 		/*
 		final String[] TAGS = {
@@ -214,7 +202,7 @@ public class GUI {
 		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
 		
 		// Buscar manera de NO TENER QUE HACER ESTO
-		final CustomTable TABLA = new CustomTable(MODELO_INVENTARIO);
+		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_INVENTARIO);
 
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
 		PANEL_INVENTARIO.add(TABLA, BorderLayout.CENTER);
@@ -227,7 +215,7 @@ public class GUI {
 
 	private static JPanel buildActiveLoansPanel() {
 		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
-		final CustomTable TABLA = new CustomTable(MODELO_PRESTAMOS);
+		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS);
 
 		// PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
 		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
@@ -258,7 +246,7 @@ public class GUI {
 	}
 	
 
-	private static void buildWindow() {
+	public static void buildWindow() {
 		final Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
 		final int ALTO = SCREENSIZE.height / 4 * 3;
 		final int ANCHO = SCREENSIZE.width / 4 * 3;

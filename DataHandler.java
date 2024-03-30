@@ -1,4 +1,5 @@
-// TODO: CONECTAR CON TABLEMODELS DE LA GUI
+import javax.swing.table.*;
+
 public class DataHandler {
 	public static void fetchData() {
 		while (FakeResultSet.QUERY_PRESTAMOS.next()) {
@@ -15,4 +16,17 @@ public class DataHandler {
 			MODELO_INVENTARIO.addRow(new Object[] {FakeResultSet.QUERY_INVENTARIO.getString(1), FakeResultSet.QUERY_INVENTARIO.getInt(2)});
 		}
 	}
+
+	public static final DefaultTableModel MODELO_INVENTARIO = new DefaultTableModel(new Object[]{
+		"Elemento", 
+		"Cantidad"
+	}, 0);
+
+	public static final DefaultTableModel MODELO_PRESTAMOS = new DefaultTableModel(new Object[]{
+		"Nombre",
+		"Apellido",
+		"Elemento",
+		"Cantidad",
+		"Presta"
+	}, 0);
 }
