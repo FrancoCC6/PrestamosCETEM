@@ -1,3 +1,5 @@
-mostrecent=$(ls --sort=time *.java | head -n 1)
-javac $mostrecent
-java ${mostrecent%.*}
+javac -d bin *.java
+java -cp bin Main
+#mostrecent=$(ls --sort=time *.java | head -n 1)
+#javac $mostrecent
+#java ${mostrecent%.*}

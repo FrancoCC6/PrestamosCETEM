@@ -39,7 +39,7 @@ public class FakeResultSet {
 			{"Casco", 15},
 			{"Guardapolvo", 2}
 		}),
-		QUERY_PRESTAMOS = new FakeResultSet(new Object[][] {
+		QUERY_PRESTAMOS_PENDIENTES = new FakeResultSet(new Object[][] {
 			{"Sister", "Friede", "Calculadora", 1, "Mecha"},
 			{"Demon", "in Pain", "Guardapolvo", 3, "Pablo"},
 			{"Demon", "from Below", "Casco", 2, "Any"},
@@ -47,5 +47,14 @@ public class FakeResultSet {
 			{"Knight", "Artorias", "Enchufe Zapatilla", 1, "Pame"},
 			{"Gwyn", "Lord of Cinder", "Proteccion Visual", 2, "Mecha"},
 			{"Malenia", "Blade of Miquella", "Calculadora", 1, "Laure"}
+		});
+		QUERY_PRESTAMOS_TODOS = new FakeResultSet(new Object[][] {
+
+		}),
+		QUERY_PRESTAMOS_FECHA = new FakeResultSet(new Object[][] {
+
+		}),
+		QUERY_ALUMNOS = new FakeResultSet(new Object[][] {
+
 		});
 }
