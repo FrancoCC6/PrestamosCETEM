@@ -32,7 +32,9 @@ public class GUI {
 					int fila = THIS.rowAtPoint(e.getPoint());
 					int columna = THIS.columnAtPoint(e.getPoint());
 
-					System.out.println(THIS.getValueAt(fila, columna));
+					if (fila >= 0 && columna >= 0) { // Mejorar condicion? Out of bounds da -1
+						System.out.println(THIS.getValueAt(fila, columna));
+					}
 				}
 			});
 		}
@@ -215,7 +217,7 @@ public class GUI {
 
 	private static JPanel buildActiveLoansPanel() {
 		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
-		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS);
+		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_PENDIENTES);
 
 		// PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
 		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
@@ -238,13 +240,19 @@ public class GUI {
 	}
 
 	private static JPanel buildAllLoansPanel() {
+		/*
 		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel();
 
 		PANEL_TODOS_PRESTAMOS.add(new JLabel("Todos los prestamos, WIP"));
+		*/
+		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel(new BorderLayout());
+		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_TODOS);
+
+		PANEL_TODOS_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
+		PANEL_TODOS_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
 
 		return PANEL_TODOS_PRESTAMOS;
 	}
-	
 
 	public static void buildWindow() {
 		final Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
