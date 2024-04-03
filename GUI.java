@@ -17,6 +17,7 @@ import java.awt.event.*;
 // Simula objetos de SQLite
 
 public class GUI {
+
 	private static class CustomTable extends JTable {
 		public CustomTable(AbstractTableModel modelo) {
 			super(modelo);
@@ -56,6 +57,26 @@ public class GUI {
 			CARD_LAYOUT.show(PANEL_INFERIOR, ((JButton)e.getSource()).getText());
 		}
 	};
+	*/
+
+	/*
+	private static final void displayInputFrame(String message, String button_message, Runnable button_action) {
+		JFrame frame = new JFrame(new BorderLayout());
+		JInput input_box = new JInput();
+		JLabel message_label = new JLabel(message);
+		JButton accept_button = new JButton(button_message);
+
+		accept_button.addActionListener(button_action);
+
+		frame.add(message_label, BorderLayout.NORTH);
+		frame.add(input_box, BorderLayout.CENTER);
+		frame.add(accept_button, BorderLayout.SOUTH);
+
+		frame.setPreferredSize(new Dimension(200, 100));
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}	
 	*/
 
 	private static final ActionListener NEW_LOAN_WINDOW = new ActionListener() {
@@ -99,6 +120,8 @@ public class GUI {
 				BOTON_VOLVER.setVisible(true);
 			}
 		});
+
+		//MENUITEM_BUSCAR_ALUMNO.addActionListener(e -> displayInputFrame(String message, String button_message, Runnable button_action));
 
 		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);
 		MENU_VER.add(MENUITEM_INVENTARIO_FULL);
