@@ -10,13 +10,21 @@
 */
 
 import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.TextUI;
+import javax.swing.text.JTextComponent;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
 
 // Simula objetos de SQLite
 
 public class GUI {
+	// TODO: Analizar aislar estas clases en un package
+	private static interface QueryProcessor {
+		public abstract boolean execute(String query);
+	}
 
 	private static class CustomTable extends JTable {
 		public CustomTable(AbstractTableModel modelo) {
@@ -41,6 +49,55 @@ public class GUI {
 		}
 	}
 
+	// TODO: RECONSIDERAR, potencial BLOAT
+	private static class CustomDateWidget extends JTextComponent {
+		private final JTextField INPUTS[] = new JTextField[3];
+
+		public CustomDateWidget() {
+			final LocalDate HOY = LocalDate.now();
+			setLayout(new FlowLayout(FlowLayout.LEADING));
+
+			for (int i = 2; i >= 0; i--) {
+				INPUTS[i] = new JTextField(5);
+			}
+
+			add(new JLabel("Dia: "));
+			INPUTS[0].setText(HOY.getDayOfMonth() + "");
+			add(INPUTS[0]);
+
+			add(new JLabel("Mes: "));
+			INPUTS[1].setText(HOY.getMonthValue() + "");
+			add(INPUTS[1]);
+
+			add(new JLabel("Anio: "));
+			INPUTS[2].setText(HOY.getYear() + "");
+			add(INPUTS[2]);
+
+			// NO DESCOMENTAR: NO FUNCIONA, lo dejo con motivo de historial
+			// setUI(INPUTS[0].getUI());
+		}
+
+		@Override
+		public String getText() {
+			return INPUTS[0].getText() + "/" + INPUTS[1].getText() + "/" + INPUTS[2].getText();
+		}
+
+		@Override
+		public void updateUI() {
+			// Descomentar para probar, qcyo
+			// super.updateUI();
+
+			// WARNING: Esta implementacion vacia impide que tire un runtime exception,
+			// pero implementar apropiadamente en el futuro.
+			// O no, qcyo xdxdxd
+		}
+
+		public void addActionListener(ActionListener action_listener) {
+			for (JTextField input : INPUTS) {
+				input.addActionListener(action_listener);
+			}
+		}
+	}
 
 	private static final JFrame FRAME = new JFrame();
 	private static final CardLayout CARD_LAYOUT = new CardLayout();
@@ -59,45 +116,80 @@ public class GUI {
 	};
 	*/
 
-	/*
-	private static final void displayInputFrame(String message, String button_message, Runnable button_action) {
-		JFrame frame = new JFrame(new BorderLayout());
-		JInput input_box = new JInput();
-		JLabel message_label = new JLabel(message);
+	private static final void displayInputFrame(
+			String message,
+		   	String button_message, 
+			JTextComponent input_component,
+			QueryProcessor validator
+			//QueryProcessor query
+	) {
+		JFrame frame = new JFrame();
+		//JTextField input_box = new JTextField(15);
+		JLabel 
+			message_label = new JLabel(message),
+			errmsg_label = new JLabel("Entrada incorrecta");
 		JButton accept_button = new JButton(button_message);
+		GridBagConstraints gbagc = new GridBagConstraints();
 
-		accept_button.addActionListener(button_action);
+		errmsg_label.setForeground(Color.RED);
+		errmsg_label.setVisible(false);
 
-		frame.add(message_label, BorderLayout.NORTH);
-		frame.add(input_box, BorderLayout.CENTER);
-		frame.add(accept_button, BorderLayout.SOUTH);
+		ActionListener default_action = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// De Morgan ftw
+				if (!(validator != null && !validator.execute(input_component.getText()))) {
+					// TODO: Hacer query
+					frame.dispose();
+					return;
+				}
 
-		frame.setPreferredSize(new Dimension(200, 100));
+				// Display error message
+				// TODO: Buscar alternativa para solo cambiar esto una sola vez
+				errmsg_label.setVisible(true);
+			}
+		};
+		
+		frame.setLayout(new GridBagLayout());
+		gbagc.gridx = 0;
+		gbagc.weighty = 1;
+
+		accept_button.addActionListener(default_action);
+		// Yolo
+		try {
+			((JTextField)input_component).addActionListener(default_action);
+		}
+		catch (ClassCastException e) {
+			try {
+				((CustomDateWidget)input_component).addActionListener(default_action);
+			}
+			catch (Exception ex) {System.err.println(ex);}
+		}
+		
+		gbagc.gridy = 0;
+		frame.add(message_label, gbagc);
+
+		gbagc.gridy = 1;
+		frame.add(input_component, gbagc);
+
+		gbagc.gridy = 2;
+		frame.add(errmsg_label, gbagc);
+
+		gbagc.gridy = 3;
+		frame.add(accept_button, gbagc);
+
+		frame.setMinimumSize(new Dimension(400, 150));
+		frame.setLocationRelativeTo(FRAME);
 		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 	}	
-	*/
-
-	private static final ActionListener NEW_LOAN_WINDOW = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			EventQueue.invokeLater(() -> {
-				JFrame new_frame = new JFrame("Test");
-				new_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				new_frame.setSize(500, 500);
-				new_frame.setResizable(false);
-				new_frame.setLocationByPlatform(true);
-				new_frame.setVisible(true);
-			});
-		}
-	};
 
 	private static JMenuBar buildMenuBar() {
 		final JMenuBar MENU_BAR = new JMenuBar();
 		final JMenu 
 			MENU_VER = new JMenu("Ver"),
-			MENU_BUSCAR = new JMenu("Buscar (N/I)");
+			MENU_BUSCAR = new JMenu("Buscar");
 		final JMenuItem
 			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
 			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo"),
@@ -105,6 +197,7 @@ public class GUI {
 			MENUITEM_BUSCAR_PRESTAMO_FECHA = new JMenuItem("Prestamos por fecha"),
 			MENUITEM_BUSCAR_ELEMENTO = new JMenuItem("Elemento");
 
+		// TODO: Unificar este ActionListener con el siguiente
 		MENUITEM_TODOS_PRESTAMOS.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -121,7 +214,52 @@ public class GUI {
 			}
 		});
 
-		//MENUITEM_BUSCAR_ALUMNO.addActionListener(e -> displayInputFrame(String message, String button_message, Runnable button_action));
+		MENUITEM_BUSCAR_ALUMNO.addActionListener(e -> displayInputFrame(
+		   "Ingrese nombre y/o apellido, o legajo",
+		   "Buscar",
+		   new JTextField(15),
+		   (query) -> 
+		   		(query.matches("\\d{5}")) // Legajo
+			||	query.matches("[A-Za-z]+( [A-Za-z]+)*") // Nombre y/o apellido
+		));
+
+		// TODO: Cambiar por combobox
+		MENUITEM_BUSCAR_ELEMENTO.addActionListener(e -> displayInputFrame(
+		   "Ingrese denominacion del elemento (ej.: Calculadora)",
+		   "Buscar",
+		   new JTextField(15),
+		   (query) -> query.matches("[A-Za-z0-9]+( [A-Za-z0-9]+)*") // Ej.: Calculadora, Zapatos 42, ...
+		));
+
+		MENUITEM_BUSCAR_PRESTAMO_FECHA.addActionListener(e -> displayInputFrame(
+			"Ingrese una fecha valida",
+			"Buscar",
+			new CustomDateWidget(),
+			(query) -> {
+				if (!query.matches("[0-3]?[0-9]/[01]?[0-9]/20[0-9]{2}")) {
+					return false;
+				}
+
+				String[] parsed_raw_date = query.split("/");
+				int 
+					days_of_month[] = new int[] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+					parsed_date[] = new int[3];
+
+				for (int i = 2; i >= 0; i--) {
+					parsed_date[i] = Integer.parseInt(parsed_raw_date[i]);
+				}
+
+				if (Math.abs(parsed_date[2] - 2012) % 4 == 0) {
+					days_of_month[1]++;
+				}
+
+				return
+					parsed_date[0] > 0 
+				&&	parsed_date[1] > 0
+				&&	parsed_date[1] <= 12
+				&&	parsed_date[0] <= days_of_month[parsed_date[1]];
+			}
+		));
 
 		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);
 		MENU_VER.add(MENUITEM_INVENTARIO_FULL);
@@ -130,7 +268,6 @@ public class GUI {
 		MENU_BUSCAR.add(MENUITEM_BUSCAR_ALUMNO);
 		MENU_BUSCAR.add(MENUITEM_BUSCAR_ELEMENTO);
 
-		//MENU_BAR.setMargin(new Insets(20, 20, 20, 20));
 		MENU_BAR.add(MENU_VER);
 		MENU_BAR.add(MENU_BUSCAR);
 
@@ -141,31 +278,10 @@ public class GUI {
 		JLabel ICONO = new JLabel();
 		ICONO.setIcon(new ImageIcon("res/miniatura_cetem_savio.png"));
 
-		/*
-		final String[] TAGS = {
-			"Nuevo Prestamo",
-			"Prestamos",
-			"Inventario",
-			"Boton 4"
-		};
-
-		final JButton[] BOTONES = new JButton[TAGS.length];
-		for (int i = 0; i < TAGS.length; i++) {
-			BOTONES[i] = new JButton(TAGS[i]);
-		}
-		BOTONES[0].addActionListener(NEW_LOAN_WINDOW);
-		BOTONES[1].addActionListener(SHOW_THIS_TAB);
-		BOTONES[2].addActionListener(SHOW_THIS_TAB);
-
-		/*
-		BOTON_1.setBackground(Color.CYAN);
-		BOTON_2.setBackground(Color.YELLOW);
-		BOTON_3.setBackground(Color.RED);
-		BOTON_4.setBackground(Color.GREEN);
-		*/
 		final JButton BOTON_NUEVO_PRESTAMO = new JButton("Nuevo Prestamo");
 
 		final JPanel PANEL_SUPERIOR = new JPanel(new BorderLayout()) {
+			// Straight up STOLEN code
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -227,6 +343,8 @@ public class GUI {
 		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
 		
 		// Buscar manera de NO TENER QUE HACER ESTO
+		// Re: 5/4 2:49AM: Why tho?
+		// Re: Re: 5/4 2:50AM: Ah re esquizo jajaja
 		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_INVENTARIO);
 
 		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
@@ -242,7 +360,6 @@ public class GUI {
 		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
 		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_PENDIENTES);
 
-		// PANEL_PRESTAMOS.add(new JLabel("Prestamos"));
 		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
 		PANEL_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
 
@@ -254,6 +371,7 @@ public class GUI {
 		return PANEL_PRESTAMOS;
 	}
 
+	// TODO: Completar
 	private static JPanel buildNewLoanPanel() {
 		final JPanel PANEL_NUEVO_PRESTAMO = new JPanel();
 
@@ -263,11 +381,6 @@ public class GUI {
 	}
 
 	private static JPanel buildAllLoansPanel() {
-		/*
-		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel();
-
-		PANEL_TODOS_PRESTAMOS.add(new JLabel("Todos los prestamos, WIP"));
-		*/
 		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel(new BorderLayout());
 		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_TODOS);
 
@@ -289,6 +402,7 @@ public class GUI {
 		GBAGC.gridx = 0;
 		GBAGC.gridy = 0;
 		GBAGC.weightx = 1.0;
+		// TODO: Buscarle la vuelta para no armar el panel inferior en esta funcion
 		PANEL_INFERIOR.add(SUBPANEL_INF_PRINCIPAL, GBAGC);
 
 		GBAGC.gridx = 1;
@@ -304,27 +418,18 @@ public class GUI {
 
 		FRAME.setMinimumSize(new Dimension(ANCHO, ALTO));
 		FRAME.setLayout(new GridBagLayout());
-		//FRAME.setLayout(new BorderLayout());
 
-		//GBAGC.gridwidth = ANCHO;
 		GBAGC.weightx = 1.0;
-		//GBAGC.gridheight = ALTO;
 
 		GBAGC.weighty = .01;
 		GBAGC.gridx = 0;
 		GBAGC.gridy = 0;
 		FRAME.add(buildMenuBar(), GBAGC);
-		//FRAME.add(buildMenuBar(), BorderLayout.NORTH);
 		
-		GBAGC.weighty = .01;
-		GBAGC.gridx = 0;
 		GBAGC.gridy = 1;
 		FRAME.add(buildUpperPanel(), GBAGC);
-		//FRAME.add(buildUpperPanel(), BorderLayout.NORTH);
-		
-		//FRAME.add(PANEL_INFERIOR, BorderLayout.CENTER);
+
 		GBAGC.weighty = 1.0;
-		GBAGC.gridx = 0;
 		GBAGC.gridy = 2;
 		FRAME.add(PANEL_INFERIOR, GBAGC);
 
