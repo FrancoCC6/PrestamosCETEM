@@ -12,7 +12,12 @@ public class FakeResultSet {
 	}
 
 	public boolean next() {
-		return (++current_register < DATASET.length);
+		boolean ret = ++current_register < DATASET.length;
+		// Para emular mas de un query a la misma tabla
+		if (current_register >= DATASET.length)
+			current_register = -1;
+
+		return ret;
 	}
 
 	public Integer getInt(int field_index) {

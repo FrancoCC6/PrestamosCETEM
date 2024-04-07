@@ -27,8 +27,8 @@ public class GUI {
 	}
 
 	private static class CustomTable extends JTable {
-		public CustomTable(AbstractTableModel modelo) {
-			super(modelo);
+		public CustomTable() {
+			super();
 
 			getTableHeader().setReorderingAllowed(false);
 
@@ -61,20 +61,17 @@ public class GUI {
 				INPUTS[i] = new JTextField(5);
 			}
 
-			add(new JLabel("Dia: "));
+			add(new JLabel("Dia:"));
 			INPUTS[0].setText(HOY.getDayOfMonth() + "");
 			add(INPUTS[0]);
 
-			add(new JLabel("Mes: "));
+			add(new JLabel("Mes:"));
 			INPUTS[1].setText(HOY.getMonthValue() + "");
 			add(INPUTS[1]);
 
-			add(new JLabel("Anio: "));
+			add(new JLabel("Año:"));
 			INPUTS[2].setText(HOY.getYear() + "");
 			add(INPUTS[2]);
-
-			// NO DESCOMENTAR: NO FUNCIONA, lo dejo con motivo de historial
-			// setUI(INPUTS[0].getUI());
 		}
 
 		@Override
@@ -100,21 +97,13 @@ public class GUI {
 	}
 
 	private static final JFrame FRAME = new JFrame();
-	private static final CardLayout CARD_LAYOUT = new CardLayout();
+	//private static final CardLayout CARD_LAYOUT = new CardLayout();
 	private static final JPanel 
 		PANEL_INFERIOR = new JPanel(new GridBagLayout()),
 		SUBPANEL_DATOS = new JPanel(),
-		SUBPANEL_INF_PRINCIPAL = new JPanel(CARD_LAYOUT);
+		SUBPANEL_INF_PRINCIPAL = new JPanel(new BorderLayout());
 	private static final JButton BOTON_VOLVER = new JButton("Volver");
-
-	/*
-	private static final ActionListener SHOW_THIS_TAB = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			CARD_LAYOUT.show(PANEL_INFERIOR, ((JButton)e.getSource()).getText());
-		}
-	};
-	*/
+	private static final CustomTable TABLA = new CustomTable();
 
 	private static final void displayInputFrame(
 			String message,
@@ -201,7 +190,7 @@ public class GUI {
 		MENUITEM_TODOS_PRESTAMOS.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "TodosPrestamos");
+				TABLA.setModel(DataHandler.getTableModelFromQuery(DataHandler.Query.PRESTAMOS_TODOS));
 				BOTON_VOLVER.setVisible(true);
 			}
 		});
@@ -209,7 +198,7 @@ public class GUI {
 		MENUITEM_INVENTARIO_FULL.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "Inventario");
+				TABLA.setModel(DataHandler.getTableModelFromQuery(DataHandler.Query.INVENTARIO));
 				BOTON_VOLVER.setVisible(true);
 			}
 		});
@@ -249,6 +238,7 @@ public class GUI {
 					parsed_date[i] = Integer.parseInt(parsed_raw_date[i]);
 				}
 
+				// Para los años bisiestos
 				if (Math.abs(parsed_date[2] - 2012) % 4 == 0) {
 					days_of_month[1]++;
 				}
@@ -257,7 +247,7 @@ public class GUI {
 					parsed_date[0] > 0 
 				&&	parsed_date[1] > 0
 				&&	parsed_date[1] <= 12
-				&&	parsed_date[0] <= days_of_month[parsed_date[1]];
+				&&	parsed_date[0] <= days_of_month[parsed_date[1] - 1];
 			}
 		));
 
@@ -303,7 +293,7 @@ public class GUI {
 		BOTON_VOLVER.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "PrestamosActivos");
+				TABLA.setModel(DataHandler.getTableModelFromQuery(DataHandler.Query.PRESTAMOS_PENDIENTES));
 				BOTON_VOLVER.setVisible(false);
 			}
 		});
@@ -311,8 +301,8 @@ public class GUI {
 		BOTON_NUEVO_PRESTAMO.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "NuevoPrestamo");
-				BOTON_VOLVER.setVisible(true);
+				//CARD_LAYOUT.show(SUBPANEL_INF_PRINCIPAL, "NuevoPrestamo");
+				//BOTON_VOLVER.setVisible(true);
 			}
 		});
 
@@ -339,39 +329,9 @@ public class GUI {
 	 *					***********   SUJETO A CAMBIOS   ************
 	 */
 
-	private static JPanel buildStockPanel() {
-		final JPanel PANEL_INVENTARIO = new JPanel(new BorderLayout());
-		
-		// Buscar manera de NO TENER QUE HACER ESTO
-		// Re: 5/4 2:49AM: Why tho?
-		// Re: Re: 5/4 2:50AM: Ah re esquizo jajaja
-		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_INVENTARIO);
-
-		PANEL_INVENTARIO.add(TABLA.getTableHeader(), BorderLayout.NORTH);
-		PANEL_INVENTARIO.add(TABLA, BorderLayout.CENTER);
-
-		PANEL_INVENTARIO.setOpaque(true);
-		PANEL_INVENTARIO.setBackground(Color.WHITE);
-
-		return PANEL_INVENTARIO;
-	}
-
-	private static JPanel buildActiveLoansPanel() {
-		final JPanel PANEL_PRESTAMOS = new JPanel(new BorderLayout());
-		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_PENDIENTES);
-
-		PANEL_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
-		PANEL_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
-
-		/*
-		PANEL_PRESTAMOS.setOpaque(true);
-		PANEL_PRESTAMOS.setBackground(Color.WHITE);
-		*/
-
-		return PANEL_PRESTAMOS;
-	}
-
+	/*
 	// TODO: Completar
+	// Update 6/4/24 20:57: Capaz no hago un panel y uso un frame considerando la refactorizacion de usar una sola tabla
 	private static JPanel buildNewLoanPanel() {
 		final JPanel PANEL_NUEVO_PRESTAMO = new JPanel();
 
@@ -379,18 +339,12 @@ public class GUI {
 
 		return PANEL_NUEVO_PRESTAMO;
 	}
-
-	private static JPanel buildAllLoansPanel() {
-		final JPanel PANEL_TODOS_PRESTAMOS = new JPanel(new BorderLayout());
-		final CustomTable TABLA = new CustomTable(DataHandler.MODELO_PRESTAMOS_TODOS);
-
-		PANEL_TODOS_PRESTAMOS.add(TABLA.getTableHeader(), BorderLayout.NORTH);
-		PANEL_TODOS_PRESTAMOS.add(TABLA, BorderLayout.CENTER);
-
-		return PANEL_TODOS_PRESTAMOS;
-	}
+	*/
 
 	public static void buildWindow() {
+		// TODO: Pensar si esto realmente deberia estar aca
+		TABLA.setModel(DataHandler.getTableModelFromQuery(DataHandler.Query.PRESTAMOS_PENDIENTES));
+
 		final Dimension SCREENSIZE = Toolkit.getDefaultToolkit().getScreenSize();
 		final int ALTO = SCREENSIZE.height / 4 * 3;
 		final int ANCHO = SCREENSIZE.width / 4 * 3;
@@ -408,10 +362,8 @@ public class GUI {
 		GBAGC.gridx = 1;
 		GBAGC.weightx = .5;
 		PANEL_INFERIOR.add(SUBPANEL_DATOS, GBAGC);
-		SUBPANEL_INF_PRINCIPAL.add(buildActiveLoansPanel(), "PrestamosActivos");
-		SUBPANEL_INF_PRINCIPAL.add(buildStockPanel(), "Inventario");
-		SUBPANEL_INF_PRINCIPAL.add(buildNewLoanPanel(), "NuevoPrestamo");
-		SUBPANEL_INF_PRINCIPAL.add(buildAllLoansPanel(), "TodosPrestamos");
+		SUBPANEL_INF_PRINCIPAL.add(TABLA.getTableHeader(), BorderLayout.NORTH);
+		SUBPANEL_INF_PRINCIPAL.add(TABLA, BorderLayout.CENTER);
 
 		SUBPANEL_DATOS.add(new JLabel("Haga clic en cualquier dato para mostrar mas informacion"));
 		SUBPANEL_DATOS.setBackground(new Color(220, 230, 240));
