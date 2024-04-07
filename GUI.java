@@ -22,8 +22,9 @@ import java.time.LocalDate;
 
 public class GUI {
 	// TODO: Analizar aislar estas clases en un package
-	private static interface QueryProcessor {
-		public abstract boolean execute(String query);
+	// Update 7/4/24 00:52: No me acuerdo si eran las que ya pase a otros archivos o estas
+	private static interface InputProcessor {
+		public abstract boolean process(String query);
 	}
 
 	private static class CustomTable extends JTable {
@@ -105,12 +106,24 @@ public class GUI {
 	private static final JButton BOTON_VOLVER = new JButton("Volver");
 	private static final CustomTable TABLA = new CustomTable();
 
+	private static final boolean doQueryGetResponse(DataHandler.Query query_type, String query_hint) {
+		DefaultTableModel mod_nuevo = DataHandler.getTableModelFromQuery(query_type, query_hint);
+
+		if (mod_nuevo == null) {
+			return false;
+		}
+
+		TABLA.setModel(mod_nuevo);
+		BOTON_VOLVER.setVisible(true);
+		return true;
+	}
+
 	private static final void displayInputFrame(
 			String message,
 		   	String button_message, 
 			JTextComponent input_component,
-			QueryProcessor validator
-			//QueryProcessor query
+			InputProcessor validator,
+			InputProcessor query_executor
 	) {
 		JFrame frame = new JFrame();
 		//JTextField input_box = new JTextField(15);
@@ -126,16 +139,29 @@ public class GUI {
 		ActionListener default_action = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// De Morgan ftw
-				if (!(validator != null && !validator.execute(input_component.getText()))) {
-					// TODO: Hacer query
+				if (validator == null) {
 					frame.dispose();
 					return;
 				}
 
-				// Display error message
-				// TODO: Buscar alternativa para solo cambiar esto una sola vez
-				errmsg_label.setVisible(true);
+				if (!validator.process(input_component.getText())) {
+					errmsg_label.setVisible(true);
+					return;
+				}
+
+				frame.dispose();
+
+				if (!query_executor.process(input_component.getText())) {
+					// Mensaje de query no exitosa
+					JFrame msg_frame = new JFrame();
+					msg_frame.setLayout(new FlowLayout(FlowLayout.CENTER));
+					msg_frame.add(new JLabel("No se encontraron resultados"));
+					msg_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					msg_frame.setSize(new Dimension(350, 100));
+					msg_frame.setResizable(false);
+					msg_frame.setLocationRelativeTo(FRAME);
+					msg_frame.setVisible(true);
+				}
 			}
 		};
 		
@@ -178,12 +204,12 @@ public class GUI {
 		final JMenuBar MENU_BAR = new JMenuBar();
 		final JMenu 
 			MENU_VER = new JMenu("Ver"),
-			MENU_BUSCAR = new JMenu("Buscar");
+			MENU_BUSCAR = new JMenu("Buscar prestamos por...");
 		final JMenuItem
 			MENUITEM_TODOS_PRESTAMOS = new JMenuItem("Todos los prestamos"),
 			MENUITEM_INVENTARIO_FULL = new JMenuItem("Inventario completo"),
 			MENUITEM_BUSCAR_ALUMNO = new JMenuItem("Alumno"),
-			MENUITEM_BUSCAR_PRESTAMO_FECHA = new JMenuItem("Prestamos por fecha"),
+			MENUITEM_BUSCAR_PRESTAMO_FECHA = new JMenuItem("Fecha"),
 			MENUITEM_BUSCAR_ELEMENTO = new JMenuItem("Elemento");
 
 		// TODO: Unificar este ActionListener con el siguiente
@@ -198,38 +224,41 @@ public class GUI {
 		MENUITEM_INVENTARIO_FULL.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Cambiar por doQueryGetResponse?
 				TABLA.setModel(DataHandler.getTableModelFromQuery(DataHandler.Query.INVENTARIO));
 				BOTON_VOLVER.setVisible(true);
 			}
 		});
 
 		MENUITEM_BUSCAR_ALUMNO.addActionListener(e -> displayInputFrame(
-		   "Ingrese nombre y/o apellido, o legajo",
-		   "Buscar",
-		   new JTextField(15),
-		   (query) -> 
-		   		(query.matches("\\d{5}")) // Legajo
-			||	query.matches("[A-Za-z]+( [A-Za-z]+)*") // Nombre y/o apellido
+			"Ingrese nombre y/o apellido, o legajo",
+			"Buscar",
+			new JTextField(15),
+			input -> 
+				(	input.matches("\\d{5}")) // Legajo
+				||	input.matches("[A-Za-z]+( [A-Za-z]+)*"), // Nombre y/o apellido
+			q_hint -> doQueryGetResponse(DataHandler.Query.PRESTAMOS_ALUMNO, q_hint)
 		));
 
 		// TODO: Cambiar por combobox
 		MENUITEM_BUSCAR_ELEMENTO.addActionListener(e -> displayInputFrame(
-		   "Ingrese denominacion del elemento (ej.: Calculadora)",
-		   "Buscar",
-		   new JTextField(15),
-		   (query) -> query.matches("[A-Za-z0-9]+( [A-Za-z0-9]+)*") // Ej.: Calculadora, Zapatos 42, ...
+			"Ingrese denominacion del elemento (ej.: Calculadora)",
+			"Buscar",
+			new JTextField(15),
+			input -> input.matches("[A-Za-z0-9]+( [A-Za-z0-9]+)*"), // Ej.: Calculadora, Zapatos 42, ...
+			q_hint -> doQueryGetResponse(DataHandler.Query.PRESTAMOS_ELEMENTO, q_hint)
 		));
 
 		MENUITEM_BUSCAR_PRESTAMO_FECHA.addActionListener(e -> displayInputFrame(
 			"Ingrese una fecha valida",
 			"Buscar",
 			new CustomDateWidget(),
-			(query) -> {
-				if (!query.matches("[0-3]?[0-9]/[01]?[0-9]/20[0-9]{2}")) {
+			input -> {
+				if (!input.matches("[0-3]?[0-9]/[01]?[0-9]/20[0-9]{2}")) {
 					return false;
 				}
 
-				String[] parsed_raw_date = query.split("/");
+				String[] parsed_raw_date = input.split("/");
 				int 
 					days_of_month[] = new int[] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
 					parsed_date[] = new int[3];
@@ -248,7 +277,8 @@ public class GUI {
 				&&	parsed_date[1] > 0
 				&&	parsed_date[1] <= 12
 				&&	parsed_date[0] <= days_of_month[parsed_date[1] - 1];
-			}
+			},
+			q_hint -> doQueryGetResponse(DataHandler.Query.PRESTAMOS_FECHA, q_hint)
 		));
 
 		MENU_VER.add(MENUITEM_TODOS_PRESTAMOS);

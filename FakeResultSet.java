@@ -71,21 +71,18 @@ public class FakeResultSet {
 			{"14/03 13:00", "Agony", "OST", "Casco", 2, "Mecha", "Si"},
 			{"14/03 9:00", "Suzuha", "Amane", "Proteccion Visual", 2, "Mecha", "Si"}
 		}),
+		QUERY_PRESTAMOS_ELEMENTO = new FakeResultSet(new Object[][] {
+			{"15/03 15:00", "Sister", "Friede", "Calculadora", 1, "Mecha", "No"},
+			{"15/03 9:00", "Malenia", "Blade of Miquella", "Calculadora", 1, "Laure", "No"},
+			{"14/03 15:00", "The Great", "Mighty Poo", "Calculadora", 2, "Mecha", "Si"}
+		}),
 		QUERY_PRESTAMOS_FECHA = new FakeResultSet(new Object[][] {
 			{"14/03 15:00", "The Great", "Mighty Poo", "Calculadora", 2, "Mecha", "Si"},
 			{"14/03 14:00", "Lea", "Crosscode", "Guardapolvo", 2, "Mecha", "Si"},
 			{"14/03 13:00", "Agony", "OST", "Casco", 2, "Mecha", "Si"},
 			{"14/03 9:00", "Suzuha", "Amane", "Proteccion Visual", 2, "Mecha", "Si"}
+		}),
+		QUERY_PRESTAMOS_ALUMNO = new FakeResultSet(new Object[][] {
+			{"14/03 14:00", "Lea", "Crosscode", "Guardapolvo", 2, "Mecha", "Si"}
 		});
-		/*
-		QUERY_ALUMNOS = new FakeResultSet(new Object[][] {
-			{"Sister", "Friede", "Calculadora", 1, "Mecha"},
-			{"Demon", "in Pain", "Guardapolvo", 3, "Pablo"},
-			{"Demon", "from Below", "Casco", 2, "Any"},
-			{"Demon", "Prince", "Proteccion Auditiva", 4, "Fran"},
-			{"Knight", "Artorias", "Enchufe Zapatilla", 1, "Pame"},
-			{"Gwyn", "Lord of Cinder", "Proteccion Visual", 2, "Mecha"},
-			{"Malenia", "Blade of Miquella", "Calculadora", 1, "Laure"}
-		});
-		*/
 }
