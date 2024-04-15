@@ -15,6 +15,7 @@ public class FramePrestamos1 {
 
 		GridBagConstraints gbc = new GridBagConstraints();
 
+		gbc.insets = new Insets(5, 5, 0, 5);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		gbc.gridwidth = 2;
@@ -46,13 +47,15 @@ public class FramePrestamos1 {
 		gbc.gridwidth = 2;
 
 		gbc.fill = GridBagConstraints.NONE;
+		gbc.insets.set(15, 5, 5, 5);
 		gbc.gridy = 4;
 		gbc.gridx = 0;
 		frame.add(button_aceptar, gbc);
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Nuevo Prestamo");
-		frame.setSize(new Dimension(250, 150));
+		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
 		frame.setVisible(true);
 	}
