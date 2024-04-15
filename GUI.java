@@ -126,7 +126,6 @@ public class GUI {
 			InputProcessor query_executor
 	) {
 		JFrame frame = new JFrame();
-		//JTextField input_box = new JTextField(15);
 		JLabel 
 			message_label = new JLabel(message),
 			errmsg_label = new JLabel("Entrada incorrecta");
